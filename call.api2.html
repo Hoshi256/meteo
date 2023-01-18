@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="weather"></div>
+
+    
+</body>
+
+<script>
+
+$.ajax({
+    url: "https://api.weather.com/v1/geocode/40.748817/-73.985428/forecast/hourly/48hour.json?apiKey=your-api-key",
+    type: "GET",
+    dataType: "json",
+    success: function(data) {
+        $("#weather").html(data.forecasts[0].temp);
+    }
+});
+
+</script>
+</html>
