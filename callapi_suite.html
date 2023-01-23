@@ -52,8 +52,8 @@
                     <thead>
                         <tr class="tablehead">
                             <th>City/ZIP</th>
-                            <th>Temperature C°</th>
-                            <th>Temperature F°</th>
+                            <th>Temperature C°/F</th>
+                            <!-- <th>Temperature F°</th> -->
                             <th>Humidity  %</th>
                             <th>Pressure</th>
                             <th>Weather</th>
@@ -114,7 +114,7 @@ async function getWeather() {
 
             var humidity = data.main.humidity;
             var pression = data.main.pressure;
-            document.getElementById('weather').innerHTML = `<p> Now in ${city}:  Hum : ${humidity}, TempC: ${temperature}, Tempk°: ${temperature2}, Press ${pression}<p>`;
+            document.getElementById('weather').innerHTML = `<p> Now in ${city}:  Hum : ${humidity}, TempC: ${temperature}, TempK: ${temperature}, Tempk°: ${temperature2}, Press ${pression}<p>`;
         } catch (error) {
             console.error(error);
         }
@@ -175,7 +175,7 @@ function addCityToTable(city) {
   const cityProperties = [
     { name: 'name', text: city.name },
     { name: 'temp', text: city.temp },
-    { name: 'temp', text: city.temp },
+    // { name: 'temp', text: city.temp },
 
     { name: 'pressure', text: city.pressure },
     { name: 'humidity', text: city.humidity }
@@ -286,24 +286,51 @@ function updateTemperatureUnits() {
 
 //datatable
 
-$(document).ready( function () {
-    $('#my-table').DataTable({
+// $(document).ready( function () {
+//     $('#my-table').DataTable({
 
-           columnDefs: [
-            {
-                // The `data` parameter refers to the data for the cell (defined by the
-                // `data` option, which defaults to the column being worked with, in
-                // this case `data: 0`.
-                render: function (data, type, row) {
-                    return data + ' (' + row[3] + ')';
-                },
-                targets: 0,
-            },
-            { visible: true, targets: [3] },
-        ],
-    });
-} );
+//            columnDefs: [
+//             {
+//                 // The `data` parameter refers to the data for the cell (defined by the
+//                 // `data` option, which defaults to the column being worked with, in
+//                 // this case `data: 0`.
+//                 render: function (data, type, row) {
+//                     return data + ' (' + row[3] + ')';
+//                 },
+//                 targets: 0,
+//             },
+//             { visible: true, targets: [3] },
+//         ],
+//     });
+// } );
 
+
+    $(document).ready(function() {
+        var table = $('#my-table').DataTable();
+          $('#unit-switch').click(function() {
+            var tempCells = table.column(1).nodes().to$();
+            var unit = $(this).text();
+            if(unit === '°F') {
+            $(this).text('°C');
+            tempCells.each(function() {
+            var tempC = parseFloat($(this).text());
+            var tempF = (tempC * 9/5) + 32;
+            $(this).text(tempF);
+          });
+
+            } else {
+              $(this).text('°F');
+              tempCells.each(function() {
+              var tempF = parseFloat($(this).text());
+              var tempC = (tempF -32) * 5/9;
+             })
+                    }
+          })
+
+    })
+
+
+    
 
     </script>
 
@@ -331,7 +358,7 @@ $(document).ready( function () {
     th {
   padding: 12px;
     text-align: left;
-    background-color: #ffc107 ;
+    background-color: #ffc107;
     color: white;
     font-size: 18px;
     font-weight:bold;
