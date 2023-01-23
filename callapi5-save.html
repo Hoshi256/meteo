@@ -20,49 +20,83 @@ function getWeather() {
     fetch(url)
     .then(response => response.json())
     .then(data => {
-
-      //var weather = data.weather[0].main;
-      //var weather = data.main.humidity;
-      var temperature = (data.main.temp - 273.15).toFixed(2);
-      var humidity = data.main.humidity;
-      var pression = data.main.pressure;
+    var city = document.getElementById("city").value;
+    var temperature = (data.main.temp - 273.15).toFixed(2);
+    var humidity = data.main.humidity;
+    var pression = data.main.pressure;
     
+document.getElementById('weather').innerHTML = `<p> Now in ${city}:  Hum : ${humidity}, Temp: ${temperature}, Press ${pression}<p>`;
+
+ // localStorage.setItem('weather', JSON.stringify(data));
     
-    localStorage.setItem('weather', JSON.stringify(data));
-    console.log('Weather data stored in local storage.');
-
-      document.getElementById('weather').innerHTML = `<p>Humidity in ${city}: ${humidity}, Temperature: ${temperature}, Pressure ${pression}<p>`;
-    })
-    .catch(error => console.error(error));  
+// var weatherdata = JSON.parse(localStorage.getItem('weather-data'));
 
 
-
-
-var weatherData = JSON.parse(localStorage.getItem('weather'));
 var weatherTable = document.getElementById('weather-data');
+
 
 
 var row = document.createElement('tr');
 var city = document.createElement('td');
 city.textContent = document.getElementById("city").value;
 var temperature = document.createElement('td');
-temperature.textContent = ((weatherData.main.temp -273.15).toFixed(2));
+temperature.textContent = ((data.main.temp -273.15).toFixed(2));
 var humidity = document.createElement('td');
-humidity.textContent = weatherData.main.humidity;
+humidity.textContent = data.main.humidity;
 var pressure = document.createElement('td');
-pressure.textContent = weatherData.main.pressure;
+pressure.textContent = data.main.pressure;
 
 row.appendChild(city);
 row.appendChild(humidity);
 row.appendChild(temperature);
 row.appendChild(pressure);
 weatherTable.appendChild(row);
+
+let cities = JSON.parse(localStorage.getItem("weatherTable"));
+if (cities == null) {
+    cities = []
 }
 
 
+cities.push(data);
+
+
+console.log(cities);
+
+localStorage.setItem('weatherTable', JSON.stringify(cities));
+    })
+    .catch(error => console.error(error));  
+
+}
+
+//end function 
 
 
 
+
+var weatherTable = document.createElement('weather-data');
+
+
+//console.log(weatherTable);
+
+ for (let i= 0; i < cities.length; i++ ) {
+    var row = document.createElement('tr');
+    var city = document.createElement('td');
+    city.textContent = cities[i].main.name;
+    var temperature = document.createElement('td');
+    temperature.textContent = cities[i].main.temp;
+    var humidity = document.createElement('td');
+    humidity.textContent = cities[i].main.humidity;
+    var pressure = document.createElement('td');
+    pressure.textContent = cities[i].main.pressure;
+
+row.appendChild(city);
+row.appendChild(humidity);
+row.appendChild(temperature);
+row.appendChild(pressure);
+//weatherTable.appendChild(row);
+
+ }
 
 </script>
 <div class="container col-4 border rounded bg-light mt-5" style='--bs-bg-opacity: .5;'>
@@ -80,14 +114,13 @@ weatherTable.appendChild(row);
 </div>
 
  
-<div class="mytable">
-    <table id="weather-table">
+<div class="container col-4 border rounded bg-light mt-5" style='--bs-bg-opacity: .5;'>
+    <table id="weather-data">
         <thead>
             <tr>
                 <th>City</th>
                 <th>Wheater</th>
                 <th>Temperature</th>
-                
                 <th>Presusre</th>
             </tr>
         </thead>
@@ -137,5 +170,10 @@ header h1 {
     font-size: 1.5em;
     color: white;
     margin: 0;
+}
+
+#weather-table{
+    border:2px solid black;
+    border-collapse: collapse;
 }
 </style>
