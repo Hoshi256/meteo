@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <form>
+        <div class="container">
+            <div class="mb-3">
+                <label class="form-label">
+                    <input id="city" name="city" placeholder="Enter city name" type="text">
+                    <button onclick="getWeather()" class="addbtn" type="button" id="add">GetWeather</button>
+                </label>        
+                <div class="meteo">
+                    <div classe="cestquoi" id="weather"></div>
+                </div>
+                <table id="my-table">
+                    <thead>
+                        <tr class="tablehead">
+                            <th>City/ZIP</th>
+                            <th>Temperature C°</th>
+                            <th>Temperature F°</th>
+                            <th>Humidity  %</th>
+                            <th>Pressure</th>
+                            <th>Weather</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table_body"></tbody>
+                </table>
+            </div>
+        </div>
+    </form>
+</body>
+<script>
+const apiKey = 'e5f50616c148ee9b955e99c2657c32b7';
+const input = document.querySelector('#city');
+const btnAjouter = document.querySelector('#add');
+
+async function getWeather() {
+    const city = input.value;
+    try {
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`);
+        const data = await response.json();
+        if (response.ok) {
+            const iconeUrl = getIcone(data.weather[0].icon);
+            const cityData = new City(data.name, data.id, data.main.temp, data.main.temp_k, data.main.humidity, data.main.pressure, iconeUrl);
+            displayWeather(cityData);
+            addCityToTable(cityData);
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        console.log(error);
+        alert('Invalid city name or network error.');
+    }
+}
+function getIcone(iconcode) {
+    return `http://openweathermap.org/img/w/${iconcode}.png`;
+}
+
+class City {
+    constructor(name, id, temp, temp_k, humidity, pressure, icone) {
+        this.name = name;
+        this.id = id;
+        this.temp = temp;
+        this.temp_k = temp_k;
+        this.humidity = humidity;
+        this.pressure = pressure;
+        this.icone = icone;
+    }
+}
+
+function displayWeather(cityData) {
+    const weatherDiv = document.querySelector('#weather');
+    weatherDiv.innerHTML = `
+        <h2>${cityData.name}</h2>
+        <img src="${cityData.icone}" alt="Weather icon">
+        <p>Temperature: ${cityData.temp} C°</p>
+        <p>Humidity: ${cityData.humidity} %</p>
+        <p>Pressure: ${cityData.pressure} hPa</p>
+    `;
+}
+
+function addCityToTable(cityData) {
+    const tableBody = document.querySelector('#table_body');
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td>${cityData.name}</td>
+        <td>${cityData.temp}</td>
+        <td>${(cityData.temp*1.8 + 32).toFixed(2)}</td>
+        <td>${cityData.humidity}</td>
+        <td>${cityData.pressure}</td>
+        <td><img src="${cityData.icone}" alt="Weather icon"></td>
+        <td><button class='delete-btn' onclick='deleteRow(this)'>Delete</button></td>
+    `;
+    tableBody.appendChild(newRow);
+}
+
+function deleteRow(element) {
+    let row = element.parentNode.parentNode;
+    row.parentNode.removeChild(row);
+}
+
+
+
+
+function saveToLocalStorage(cityData) {
+    let cities = JSON.parse(localStorage.getItem('cities')) || [];
+    cities.push(cityData);
+    localStorage.setItem('cities', JSON.stringify(cities));
+}
+
+function loadFromLocalStorage() {
+    let cities = JSON.parse(localStorage.getItem('cities')) || [];
+    cities.forEach(cityData => {
+        displayWeather(cityData);
+        addCityToTable(cityData);
+    });
+}
+
+loadFromLocalStorage();
+</script>
+</html>
+

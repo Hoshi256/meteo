@@ -48,12 +48,12 @@
                     </div>
 
             </div>
-        <table id="my-table" class="table">
+            <table id="my-table" class="table display">
                     <thead>
                         <tr class="tablehead">
                             <th>City/ZIP</th>
                             <th>Temperature C°</th>
-                        
+                            <th>Temperature F°</th>
                             <th>Humidity  %</th>
                             <th>Pressure</th>
                             <th>Weather</th>
@@ -61,25 +61,27 @@
                         </tr>
                     </thead>
                     <tbody id="table_body">
-
+                           
                     </tbody>
                 </table>
                 </div>
         </div>
     </form>
- </div>
+ <!-- </div> -->
 
   
 
 </div>
     <script>
 
+      const apiKey = 'e5f50616c148ee9b955e99c2657c32b7';
 
+    const btnAjouter = document.querySelector('#add');
+// const input = document.querySelector('#city');
 
 
 
     const input = document.querySelector('input');
-    const btnAjouter = document.querySelector('#add');
 
     function getUrl(city) {
             const apiKey = 'e5f50616c148ee9b955e99c2657c32b7';
@@ -95,6 +97,7 @@
                 this.name = name;
                 this.id = id;
                 this.temp = temp;
+                // this.temp = temp;
                 this.humidity = humidity;
                 this.pressure = pressure;
                 this.icone = icone;
@@ -105,14 +108,16 @@
 async function getWeather() {
         try {
             var city = document.getElementById("city").value;
-            var apiKey = "e5f50616c148ee9b955e99c2657c32b7";
+            // var apiKey = "e5f50616c148ee9b955e99c2657c32b7";
             var url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`
             const response = await fetch(url);
             const data = await response.json();
             var temperature = (data.main.temp - 273.15).toFixed(2);
+            var temperature2 = data.main.temp;
+
             var humidity = data.main.humidity;
             var pression = data.main.pressure;
-            document.getElementById('weather').innerHTML = `<p> Now in ${city}:  Hum : ${humidity}, Temp: ${temperature}, Press ${pression}<p>`;
+            document.getElementById('weather').innerHTML = `<p> Now in ${city}:  Hum : ${humidity}, TempC: ${temperature}, TempK: ${temperature}, Tempk°: ${temperature2}, Press ${pression}<p>`;
         } catch (error) {
             console.error(error);
         }
@@ -128,7 +133,7 @@ let cities = JSON.parse(localStorage.getItem("cities"))
         for (const city of cities) {
             addCityToTable(city);
         }
-
+// comment
         document.querySelector('tbody').addEventListener('click', bodyClick)
 
         function bodyClick(e) {
@@ -145,7 +150,7 @@ let cities = JSON.parse(localStorage.getItem("cities"))
                 const response = await fetch(url);
                 if (!response.ok) throw new Error(response.statusText);
                 const data = await response.json();
-                const city = new City(cityName, data.id, (data.main.temp - 273.15).toFixed(2), data.main.pressure, data.main.humidity, data.weather[0].icon)
+                const city = new City(cityName, data.id, data.main.temp, data.main.pressure, data.main.humidity, data.weather[0].icon)
                 cities.push(city);
                 localStorage.setItem("cities", JSON.stringify(cities));
                 return city;
@@ -173,6 +178,8 @@ function addCityToTable(city) {
   const cityProperties = [
     { name: 'name', text: city.name },
     { name: 'temp', text: city.temp },
+    { name: 'tempF', text: (city.temp * 9/5) + 32 },
+
     { name: 'pressure', text: city.pressure },
     { name: 'humidity', text: city.humidity }
   ];
@@ -202,39 +209,6 @@ function createIconeTd(icone){
     return iconTd;
 }
 
-
-// const unitSwitchBtn = document.querySelector("#unit-switch");
-// unitSwitchBtn.addEventListener("click", () => {
-//   if (unitSwitchBtn.textContent === "°C") {
-//     unitSwitchBtn.textContent = "°F";
-//     // Code to convert temperature to Fahrenheit and update the display goes here
-//   } else {
-//     unitSwitchBtn.textContent = "°C";
-//     // Code to convert temperature back to Celsius and update the display goes here
-//   }
-// });
-
-const unitSwitchBtn = document.querySelector("#unit-switch");
-unitSwitchBtn.addEventListener("click", () => {
-  if (unitSwitchBtn.textContent === "°C") {
-    unitSwitchBtn.textContent = "°F";
-    // Code to convert temperature to Fahrenheit and update the display goes here
-    var temp = document.getElementById('temp').innerHTML;
-    temp = parseFloat(temp);
-    temp = celsiusToFahrenheit(temp);
-    document.getElementById('temp').innerHTML = temp.toFixed(2);
-  } else {
-    unitSwitchBtn.textContent = "°C";
-    // Code to convert temperature back to Celsius and update the display goes here
-    var temp = document.getElementById('temp').innerHTML;
-    temp = parseFloat(temp);
-    temp = (temp-32)*5/9;
-    document.getElementById('temp').innerHTML = temp.toFixed(2);
-  }
-});
-
-
-
 function createDeleteButtonTd(cityId){
     const buttonTd = document.createElement('td');
     const deleteButton = document.createElement('button');
@@ -260,12 +234,49 @@ const addCity = async () => {
         btnAjouter.addEventListener('click', addCity)
 
 
+//https://datatables.net/reference/option/columns.visible
 
-//datatable
 
-$(document).ready( function () {
-    $('#my-table').DataTable();
-} );
+
+   $(document).ready(function() {
+
+    const unitSwitchBtn = document.querySelector("#unit-switch");
+    let isCelsius = true
+
+
+        var table = $('#my-table').DataTable({
+        "columnDefs": [
+           { "visible": false, "targets": 2 },
+
+            ]
+            } );
+                 
+      unitSwitchBtn.addEventListener("click", function(event){
+        if(isCelsius==true){
+
+          // si colonne Celsius affichée
+          table.column( 2).visible( true );
+          table.column( 1).visible( false );
+          isCelsius = false;
+
+        }
+        else{
+                    // si colonne Celsius affichée
+          table.column( 2).visible( false );
+          table.column( 1).visible( true );
+          isCelsius = true;
+        }
+
+         
+      
+    })
+
+})
+
+
+
+
+
 
 
     </script>
@@ -294,7 +305,7 @@ $(document).ready( function () {
     th {
   padding: 12px;
     text-align: left;
-    background-color: #ffc107 ;
+    background-color: #ffc107;
     color: white;
     font-size: 18px;
     font-weight:bold;
